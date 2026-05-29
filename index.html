@@ -4,21 +4,26 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BrotRadar</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,sans-serif;background:#fff8ef;color:#2b1b0f}
-header{background:linear-gradient(135deg,#c77700,#7a3f00);color:white;padding:40px 20px;text-align:center}
+header{background:linear-gradient(135deg,#c77700,#7a3f00);color:white;padding:35px 20px;text-align:center}
 .logo{font-size:44px;font-weight:bold}
 .subtitle{font-size:20px;margin-top:10px}
-.search-box{background:white;margin:-25px auto 25px;padding:20px;max-width:850px;border-radius:18px;box-shadow:0 8px 25px #0002}
+.box{background:white;margin:-25px auto 25px;padding:20px;max-width:900px;border-radius:18px;box-shadow:0 8px 25px #0002}
 input{width:100%;padding:16px;border:1px solid #ddd;border-radius:12px;font-size:18px}
 button{margin-top:12px;width:100%;padding:16px;background:#c77700;color:white;border:0;border-radius:12px;font-size:18px}
+#map{height:420px;border-radius:18px;margin:20px auto;max-width:900px}
 section{max-width:900px;margin:auto;padding:20px}
-.card{background:white;padding:20px;margin:15px 0;border-radius:16px;box-shadow:0 4px 15px #0001}
-.badge{display:inline-block;background:#ffe0aa;color:#7a3f00;padding:6px 10px;border-radius:20px;font-size:14px}
+.card{background:white;padding:18px;margin:12px 0;border-radius:16px;box-shadow:0 4px 15px #0001}
+.small{color:#7a3f00}
 footer{text-align:center;padding:30px;color:#7a3f00}
 </style>
 </head>
+
 <body>
 
 <header>
@@ -26,36 +31,124 @@ footer{text-align:center;padding:30px;color:#7a3f00}
   <div class="subtitle">Frisches Brot. Ganz in deiner Nähe.</div>
 </header>
 
-<div class="search-box">
-  <input placeholder="Stadt oder Bäckerei suchen...">
-  <button>🔍 Jetzt suchen</button>
+<div class="box">
+  <input id="cityInput" placeholder="Stadt eingeben, z.B. Berlin, Koblenz...">
+  <button onclick="searchCity()">🔍 Stadt suchen</button>
+  <button onclick="useMyLocation()">📍 Meinen Standort verwenden</button>
 </div>
 
+<div id="map"></div>
+
 <section>
-  <h2>Beliebte Funktionen</h2>
-
-  <div class="card">
-    <span class="badge">📍 In deiner Nähe</span>
-    <h3>Bäckereien in der Umgebung finden</h3>
-    <p>Finde schnell Bäckereien in deiner Stadt oder in deiner Nähe.</p>
-  </div>
-
-  <div class="card">
-    <span class="badge">🕒 Geöffnet</span>
-    <h3>Geöffnete Bäckereien anzeigen</h3>
-    <p>Später kannst du hier sehen, welche Bäckereien gerade geöffnet sind.</p>
-  </div>
-
-  <div class="card">
-    <span class="badge">⭐ Bewertungen</span>
-    <h3>Bewertungen und Empfehlungen</h3>
-    <p>Nutzer können später ihre Lieblingsbäckereien bewerten.</p>
+  <h2>Gefundene Bäckereien</h2>
+  <div id="results">
+    <div class="card">Suche nach einer Stadt oder verwende deinen Standort.</div>
   </div>
 </section>
 
 <footer>
   © 2026 BrotRadar · Deutschlands Bäckerei Finder
 </footer>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+let map = L.map('map').setView([51.1657, 10.4515], 6);
+let markers = [];
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap'
+}).addTo(map);
+
+function clearMarkers(){
+  markers.forEach(m => map.removeLayer(m));
+  markers = [];
+}
+
+function showResults(places){
+  const results = document.getElementById("results");
+  results.innerHTML = "";
+
+  if(places.length === 0){
+    results.innerHTML = '<div class="card">Keine Bäckereien gefunden.</div>';
+    return;
+  }
+
+  places.forEach(place => {
+    const name = place.tags.name || "Bäckerei";
+    const street = place.tags["addr:street"] || "";
+    const city = place.tags["addr:city"] || "";
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `<h3>🥨 ${name}</h3><p class="small">${street} ${city}</p>`;
+    results.appendChild(card);
+
+    const marker = L.marker([place.lat, place.lon])
+      .addTo(map)
+      .bindPopup(`<b>${name}</b><br>${street} ${city}`);
+    markers.push(marker);
+  });
+}
+
+async function searchBakeries(lat, lon){
+  clearMarkers();
+  map.setView([lat, lon], 13);
+
+  const query = `
+  [out:json];
+  (
+    node["shop"="bakery"](around:5000,${lat},${lon});
+    way["shop"="bakery"](around:5000,${lat},${lon});
+    relation["shop"="bakery"](around:5000,${lat},${lon});
+  );
+  out center 30;
+  `;
+
+  const url = "https://overpass-api.de/api/interpreter?data=" + encodeURIComponent(query);
+  const res = await fetch(url);
+  const data = await res.json();
+
+  const places = data.elements.map(e => ({
+    lat: e.lat || e.center.lat,
+    lon: e.lon || e.center.lon,
+    tags: e.tags || {}
+  }));
+
+  showResults(places);
+}
+
+async function searchCity(){
+  const city = document.getElementById("cityInput").value.trim();
+  if(!city) return alert("Bitte Stadt eingeben");
+
+  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(city + ", Germany")}`;
+  const res = await fetch(url);
+  const data = await res.json();
+
+  if(data.length === 0){
+    alert("Stadt nicht gefunden");
+    return;
+  }
+
+  const lat = parseFloat(data[0].lat);
+  const lon = parseFloat(data[0].lon);
+  searchBakeries(lat, lon);
+}
+
+function useMyLocation(){
+  if(!navigator.geolocation){
+    alert("Standort wird nicht unterstützt");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      searchBakeries(pos.coords.latitude, pos.coords.longitude);
+    },
+    () => alert("Standort konnte nicht ermittelt werden")
+  );
+}
+</script>
 
 </body>
 </html>

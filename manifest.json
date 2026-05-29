@@ -1,0 +1,16 @@
+{
+  "name": "BrotRadar",
+  "short_name": "BrotRadar",
+  "start_url": "/brotradar/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#c77700",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3081/3081559.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

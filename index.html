@@ -22,8 +22,17 @@ section{max-width:900px;margin:auto;padding:20px}
 .small{color:#7a3f00}
 footer{text-align:center;padding:30px;color:#7a3f00}
 </style>
-</head>
+<link rel="manifest" href="manifest.json">
 
+<meta name="theme-color" content="#c77700">
+
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js");
+  });
+}
+</script></head>
 <body>
 
 <header>

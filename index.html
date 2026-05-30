@@ -103,11 +103,11 @@ function showResults(places, userLat, userLon){
     const phone = place.tags.phone || "";
 const website = place.tags.website || "";
     const distance = calculateDistance(userLat, userLon, place.lat, place.lon);
-    const card = document.createElement("
+    const card = document.createElement("div");
     card.className = "card";
 card.innerHTML = `
 <h3>🥨 ${name}</h3>
-<p>📍 ${distance.toFixed(1)} km entfernt</p>
+<p>TEST DISTANCE: ${distance}</p>
 <p class="small">${street} ${city}</p>
 ${phone ? `<p>📞 ${phone}</p>` : ""}
 ${website ? `<p><a href="${website}" target="_blank">🌐 Website</a></p>` : ""}

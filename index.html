@@ -89,7 +89,7 @@ function showResults(places){
     const city = place.tags["addr:city"] || "";
     const card = document.createElement("div");
     card.className = "card";
-    card.innerHTML = `<h3>🥨 ${name}</h3><p class="small">${street} ${city}</p><button onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lon}','_blank')">📍 Route öffnen</button>`;
+    card.innerHTML = `<h3>🥨 ${name}</h3><p class="small">${street} ${city}</p><br><button style="background:#c77700;color:white;border:none;padding:10px 15px;border-radius:8px;cursor:pointer;" onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lon}','_blank')">📍 Route öffnen</button>`;
     results.appendChild(card);
 
     const marker = L.marker([place.lat, place.lon])

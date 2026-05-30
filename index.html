@@ -102,12 +102,21 @@ function showResults(places, userLat, userLon){
     const city = place.tags["addr:city"] || "";
     const phone = place.tags.phone || "";
 const website = place.tags.website || "";
+    const openingHours = place.tags.opening_hours || "";
+
+let status = "";
+if(openingHours){
+  status = "🟢 Öffnungszeiten verfügbar";
+}else{
+  status = "🔴 Keine Öffnungszeiten";
+}
     const distance = calculateDistance(userLat, userLon, place.lat, place.lon);
     const card = document.createElement("div");
     card.className = "card";
 card.innerHTML = `
 <h3>🥨 ${name}</h3>
 <p>📍 ${distance.toFixed(1)} km entfernt</p>
+<p>${status}</p>
 <p class="small">${street} ${city}</p>
 ${phone ? `<p>📞 ${phone}</p>` : ""}
 ${website ? `<p><a href="${website}" target="_blank">🌐 Website</a></p>` : ""}

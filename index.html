@@ -107,7 +107,7 @@ const website = place.tags.website || "";
     card.className = "card";
 card.innerHTML = `
 <h3>🥨 ${name}</h3>
-<p>TEST DISTANCE: ${distance}</p>
+<p>📍 ${distance.toFixed(1)} km entfernt</p>
 <p class="small">${street} ${city}</p>
 ${phone ? `<p>📞 ${phone}</p>` : ""}
 ${website ? `<p><a href="${website}" target="_blank">🌐 Website</a></p>` : ""}

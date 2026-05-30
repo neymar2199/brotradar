@@ -73,8 +73,21 @@ function clearMarkers(){
   markers.forEach(m => map.removeLayer(m));
   markers = [];
 }
+function calculateDistance(lat1, lon1, lat2, lon2){
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
 
-function showResults(places){
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) *
+    Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+function showResults(places, userLat, userLon){
   const results = document.getElementById("results");
   results.innerHTML = "";
 
@@ -89,10 +102,12 @@ function showResults(places){
     const city = place.tags["addr:city"] || "";
     const phone = place.tags.phone || "";
 const website = place.tags.website || "";
-    const card = document.createElement("div");
+    const distance = calculateDistance(userLat, userLon, place.lat, place.lon);
+    const card = document.createElement("
     card.className = "card";
 card.innerHTML = `
 <h3>🥨 ${name}</h3>
+<p>📍 ${distance.toFixed(1)} km entfernt</p>
 <p class="small">${street} ${city}</p>
 ${phone ? `<p>📞 ${phone}</p>` : ""}
 ${website ? `<p><a href="${website}" target="_blank">🌐 Website</a></p>` : ""}
@@ -133,7 +148,7 @@ async function searchBakeries(lat, lon){
     tags: e.tags || {}
   }));
 
-  showResults(places);
+  showResults(places, lat, lon);
 }
 
 async function searchCity(){

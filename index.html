@@ -106,9 +106,9 @@ const website = place.tags.website || "";
 
 let status = "";
 if(openingHours){
-  status = "🟢 Öffnungszeiten verfügbar";
+status = "🟢 Öffnungszeiten vorhanden";
 }else{
-  status = "🔴 Keine Öffnungszeiten";
+status = "⚪ Öffnungszeiten unbekannt";
 }
     const distance = calculateDistance(userLat, userLon, place.lat, place.lon);
     const card = document.createElement("div");

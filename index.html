@@ -161,6 +161,8 @@ places.sort((a, b) => {
   const distB = calculateDistance(lat, lon, b.lat, b.lon);
   return distA - distB;
 });
+  document.getElementById("resultsTitle").innerText =
+`Gefundene Bäckereien (${places.length})`;
   showResults(places, lat, lon);
 }
 

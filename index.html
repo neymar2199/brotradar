@@ -147,7 +147,11 @@ async function searchBakeries(lat, lon){
     lon: e.lon || e.center.lon,
     tags: e.tags || {}
   }));
-
+places.sort((a, b) => {
+  const distA = calculateDistance(lat, lon, a.lat, a.lon);
+  const distB = calculateDistance(lat, lon, b.lat, b.lon);
+  return distA - distB;
+});
   showResults(places, lat, lon);
 }
 

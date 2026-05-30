@@ -87,11 +87,15 @@ function showResults(places){
     const name = place.tags.name || "Bäckerei";
     const street = place.tags["addr:street"] || "";
     const city = place.tags["addr:city"] || "";
+    const phone = place.tags.phone || "";
+const website = place.tags.website || "";
     const card = document.createElement("div");
     card.className = "card";
 card.innerHTML = `
 <h3>🥨 ${name}</h3>
 <p class="small">${street} ${city}</p>
+${phone ? `<p>📞 ${phone}</p>` : ""}
+${website ? `<p><a href="${website}" target="_blank">🌐 Website</a></p>` : ""}
 <button onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lon}','_blank')">
 📍 Route öffnen
 </button>
